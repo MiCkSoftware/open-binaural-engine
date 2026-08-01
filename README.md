@@ -35,6 +35,9 @@ Call `renderInterleaved` repeatedly from one audio-rendering thread. The generat
 keeps oscillator phase, noise filters, transitions, and fades continuous across blocks.
 Use `transitionTo` for click-free live changes and `reset` to begin a new stream.
 
+Proposed application presets and the evidence supporting—or not supporting—each
+parameter are documented in [PRESETS.md](PRESETS.md).
+
 ## Signal and safety notes
 
 - Binaural beats require separate left and right channels; stereo headphones are
@@ -62,4 +65,3 @@ serialized by the host.
 Copyright 2026 MiCkSoftware
 
 Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
-
