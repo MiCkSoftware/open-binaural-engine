@@ -15,9 +15,9 @@ are not formal GRADE ratings and do not rate the exact preset as a whole:
   has not been validated.
 - **Moderate**: some relevant studies exist, but results or protocols vary materially.
 - **Limited**: evidence is sparse, indirect, or based on small studies.
-- **Low**: the configuration is mainly an experimental product hypothesis.
+- **Low**: the configuration is mainly an experimental engine hypothesis.
 
-No row should be described in the app as “scientifically proven.”
+No row should be described by a library consumer as “scientifically proven.”
 
 ## Proposed built-in presets
 
@@ -76,8 +76,8 @@ not from a specific theoretical or empirical advantage.
 [Ingendoh et al. (2023)](#2-ingendoh-et-al-2023);
 [Fan et al. (2024)](#7-fan-et-al-2024)
 
-Consequently, every carrier in the preset table is an app design choice for perception
-and comfort. The descending carriers are experiments unique to the product until a
+Consequently, every carrier in the preset table is an engine-catalogue design choice for perception
+and comfort. The descending carriers are experiments unique to this engine until a
 controlled fixed-versus-progressive comparison is available.
 
 ### White, pink, and brown noise
@@ -91,9 +91,10 @@ Noise itself must not be presented as a proven sleep aid. A systematic review ra
 evidence that continuous broadband noise improves sleep as very low and found outcomes
 ranging from improvement to sleep disruption. [Riedy et al. (2021)](#8-riedy-et-al-2021)
 
-### Scientific honesty in the app
+### Scientific honesty for engine consumers
 
-Each preset detail should distinguish three layers:
+Any product or host application exposing these presets should distinguish three layers
+in its preset details:
 
 1. **Established:** how a binaural beat is generated and the conventional EEG band in
    which the selected beat falls.
@@ -101,9 +102,9 @@ Each preset detail should distinguish three layers:
 3. **Experimental:** the exact carrier, carrier sweep, duration, gain envelope, noise
    color, and noise mix selected by Open Binaural Lab.
 
-All settings must remain editable. The app should invite users to evaluate their own
+All settings must remain editable. A host should invite listeners to evaluate their own
 experience without implying diagnosis, treatment, neurological synchronization, or a
-guaranteed effect.
+guaranteed effect. The engine itself only generates audio; it does not make those claims.
 
 ## References
 
