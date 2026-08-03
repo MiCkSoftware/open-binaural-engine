@@ -21,16 +21,31 @@ No row should be described by a library consumer as “scientifically proven.”
 
 ## Proposed built-in presets
 
-| Preset | Carrier start | Carrier end | Beat | Duration | Intensity | Noise | Evidence | Rationale / source |
-| --- | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
-| Focus | 400 Hz | 400 Hz | 14 Hz | 20 min | Progressive (3 min) | None | Good | Beta-band beats (approximately 13–30 Hz) are commonly studied for attention and cognition. Meta-analyses report aggregate effects, but frequency-specific findings remain mixed. [Garcia-Argibay et al. (2019)](#1-garcia-argibay-et-al-2019); [Basu & Banerjee (2023)](#3-basu-and-banerjee-2023). |
-| Deep Focus | 450 Hz | 450 Hz | 18 Hz | 30 min | Progressive | White | Moderate | Uses the same beta-band rationale. White noise is included for auditory masking and comfort, not because it has been shown to strengthen a binaural-beat effect. [Garcia-Argibay et al. (2019)](#1-garcia-argibay-et-al-2019). |
-| Creativity | 380 Hz | 380 Hz | 10 Hz | 20 min | Progressive | Pink | Moderate | Alpha-band stimulation has been investigated for creativity, but responses varied between individuals and did not improve every form of creative thinking. [Reedijk et al. (2013)](#4-reedijk-et-al-2013). |
-| Relax | 400 Hz | 380 Hz | 8 Hz | 20 min | Progressive | Pink | Good | Alpha-range beats are frequently used in relaxation and anxiety research, but no optimal protocol has been established. The descending carrier and pink noise are comfort and masking choices, not validated active ingredients. [Garcia-Argibay et al. (2019)](#1-garcia-argibay-et-al-2019); [Platt & Hammond (2024)](#6-platt-and-hammond-2024). |
-| Meditation | 400 Hz | 350 Hz | 6 Hz | 30 min | Slow progressive | Pink | Moderate | A 6 Hz theta beat has produced measurable theta-related responses in an individual study, while systematic evidence for reliable brainwave entrainment remains inconsistent. [Jirakittayakorn & Wongsawat (2017)](#5-jirakittayakorn-and-wongsawat-2017); [Ingendoh et al. (2023)](#2-ingendoh-et-al-2023). |
-| Deep Meditation | 380 Hz | 320 Hz | 4 Hz | 30 min | Slow progressive | Brown | Limited | Evidence specific to low-theta/delta-border beats is sparse. Brown noise is a comfort and masking choice; no cited comparative evidence establishes it as superior to pink noise or as an entrainment enhancer. [Ingendoh et al. (2023)](#2-ingendoh-et-al-2023). |
-| Sleep Onset | 350 Hz | 250 Hz | 3 Hz | 30 min | Slow progressive | Brown | Limited | Delta-range binaural-beat sleep studies remain limited and heterogeneous. Neither this 3 Hz value nor the descending carrier is a validated sleep-onset protocol. [Ingendoh et al. (2023)](#2-ingendoh-et-al-2023); [Fan et al. (2024)](#7-fan-et-al-2024). |
-| Deep Sleep | 300 Hz | 180 Hz | 2 Hz | 45 min | Very slow progressive | Brown | Low | This is primarily an experimental configuration informed by the conventional EEG delta band, not by a controlled study of this exact signal. Recent sleep work uses different beats and carriers and has not established neural entrainment as the mechanism. [Fan et al. (2024)](#7-fan-et-al-2024). |
+The host selects one global carrier reference: G4 (391.995 Hz), the neutral 400 Hz
+default, or A4 (440 Hz). Every preset is transposed from that same reference using an
+equal-tempered start offset. The optional carrier fall then applies another fixed
+interval over the full session:
+
+```text
+carrierStartHz = referenceHz * 2^(startOffsetSemitones / 12)
+carrierEndHz   = carrierStartHz * 2^(carrierFallSemitones / 12)
+```
+
+The fall catalogue is deliberately small: Stable (0 semitones), Gentle (-2), Moderate
+(-4), and Deep (-7). The values below show the exact result for the default 400 Hz
+reference; applications may round them for display but must retain full precision for
+audio generation and persistence.
+
+| Preset | Start offset | Carrier fall | Carrier at 400 Hz reference | Beat | Duration | Intensity | Noise | Evidence | Rationale / source |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
+| Focus | 0 st | Stable (0 st) | 400.00 → 400.00 Hz | 14 Hz | 20 min | Progressive (3 min) | None | Good | Beta-band beats (approximately 13–30 Hz) are commonly studied for attention and cognition. Meta-analyses report aggregate effects, but frequency-specific findings remain mixed. [Garcia-Argibay et al. (2019)](#1-garcia-argibay-et-al-2019); [Basu & Banerjee (2023)](#3-basu-and-banerjee-2023). |
+| Deep Focus | +2 st | Stable (0 st) | 448.98 → 448.98 Hz | 18 Hz | 30 min | Progressive | White | Moderate | Uses the same beta-band rationale. White noise is included for auditory masking and comfort, not because it has been shown to strengthen a binaural-beat effect. [Garcia-Argibay et al. (2019)](#1-garcia-argibay-et-al-2019). |
+| Creativity | -1 st | Stable (0 st) | 377.55 → 377.55 Hz | 10 Hz | 20 min | Progressive | Pink | Moderate | Alpha-band stimulation has been investigated for creativity, but responses varied between individuals and did not improve every form of creative thinking. [Reedijk et al. (2013)](#4-reedijk-et-al-2013). |
+| Relax | 0 st | Gentle (-2 st) | 400.00 → 356.36 Hz | 8 Hz | 20 min | Progressive | Pink | Good | Alpha-range beats are frequently used in relaxation and anxiety research, but no optimal protocol has been established. The descending carrier and pink noise are comfort and masking choices, not validated active ingredients. [Garcia-Argibay et al. (2019)](#1-garcia-argibay-et-al-2019); [Platt & Hammond (2024)](#6-platt-and-hammond-2024). |
+| Meditation | 0 st | Moderate (-4 st) | 400.00 → 317.48 Hz | 6 Hz | 30 min | Slow progressive | Pink | Moderate | A 6 Hz theta beat has produced measurable theta-related responses in an individual study, while systematic evidence for reliable brainwave entrainment remains inconsistent. [Jirakittayakorn & Wongsawat (2017)](#5-jirakittayakorn-and-wongsawat-2017); [Ingendoh et al. (2023)](#2-ingendoh-et-al-2023). |
+| Deep Meditation | -1 st | Moderate (-4 st) | 377.55 → 299.66 Hz | 4 Hz | 30 min | Slow progressive | Brown | Limited | Evidence specific to low-theta/delta-border beats is sparse. Brown noise is a comfort and masking choice; no cited comparative evidence establishes it as superior to pink noise or as an entrainment enhancer. [Ingendoh et al. (2023)](#2-ingendoh-et-al-2023). |
+| Sleep Onset | -2 st | Deep (-7 st) | 356.36 → 237.84 Hz | 3 Hz | 30 min | Slow progressive | Brown | Limited | Delta-range binaural-beat sleep studies remain limited and heterogeneous. Neither this 3 Hz value nor the descending carrier is a validated sleep-onset protocol. [Ingendoh et al. (2023)](#2-ingendoh-et-al-2023); [Fan et al. (2024)](#7-fan-et-al-2024). |
+| Deep Sleep | -5 st | Deep (-7 st) | 299.66 → 200.00 Hz | 2 Hz | 45 min | Very slow progressive | Brown | Low | This is primarily an experimental configuration informed by the conventional EEG delta band, not by a controlled study of this exact signal. Recent sleep work uses different beats and carriers and has not established neural entrainment as the mechanism. [Fan et al. (2024)](#7-fan-et-al-2024). |
 
 The engine centers each beat around the instantaneous carrier:
 
@@ -40,9 +55,11 @@ rightHz = carrierHz + beatHz / 2
 ```
 
 “Carrier start” and “carrier end” describe a linear, click-free transition orchestrated
-by the host application over the full session. A changing carrier is an experimental
-feature of this engine: the references below do not compare fixed and progressive
-carriers.
+by the host application over the full session. The musical intervals make the catalogue
+internally consistent; they do not imply a neurological or therapeutic advantage. A
+changing carrier is an experimental feature of this engine: the references below do not
+compare fixed and progressive carriers, validate these intervals, or establish that a
+descending carrier is preferable to a stable one.
 
 “Progressive” describes a host-controlled gain envelope toward the user's selected
 listening level. Only the Focus row currently specifies a three-minute ramp. The other

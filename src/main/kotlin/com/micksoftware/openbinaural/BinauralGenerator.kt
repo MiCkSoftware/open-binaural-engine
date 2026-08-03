@@ -28,7 +28,8 @@ public class BinauralGenerator(
     private var carrierStep = 0.0
     private var beatStep = 0.0
     private var noiseMixStep = 0.0
-    private var signalTransitionFrames = 0L
+    private var frequencyTransitionFrames = 0L
+    private var noiseMixTransitionFrames = 0L
 
     private var leftPhase = 0.0
     private var rightPhase = 0.0
@@ -54,6 +55,10 @@ public class BinauralGenerator(
     public val targetSignal: BinauralSignal
         get() = BinauralSignal(targetCarrierHz, targetBeatHz, nextNoiseColor, targetNoiseMix)
 
+    /** The values currently being rendered, including progress through active ramps. */
+    public val currentSignal: BinauralSignal
+        get() = BinauralSignal(carrierHz, beatHz, noiseColor, noiseMix)
+
     /** The latest requested output gain. */
     public val requestedGain: Double
         get() = targetGain
@@ -64,38 +69,56 @@ public class BinauralGenerator(
      * A zero-frame transition applies the new values before the next rendered frame.
      */
     public fun transitionTo(signal: BinauralSignal, durationFrames: Long) {
-        require(durationFrames >= 0L) { "durationFrames must be non-negative" }
-        validateForSampleRate(signal)
+        transitionFrequenciesTo(signal.carrierHz, signal.beatHz, durationFrames)
+        transitionNoiseTo(signal.noiseColor, signal.noiseMix, durationFrames)
+    }
 
-        targetCarrierHz = signal.carrierHz
-        targetBeatHz = signal.beatHz
-        targetNoiseMix = signal.noiseMix
-        signalTransitionFrames = durationFrames
+    /** Smoothly changes only the carrier and binaural beat frequencies. */
+    public fun transitionFrequenciesTo(carrierHz: Double, beatHz: Double, durationFrames: Long) {
+        require(durationFrames >= 0L) { "durationFrames must be non-negative" }
+        validateForSampleRate(BinauralSignal(carrierHz, beatHz, nextNoiseColor, targetNoiseMix))
+
+        targetCarrierHz = carrierHz
+        targetBeatHz = beatHz
+        frequencyTransitionFrames = durationFrames
 
         if (durationFrames == 0L) {
-            carrierHz = targetCarrierHz
-            beatHz = targetBeatHz
-            noiseMix = targetNoiseMix
+            this.carrierHz = targetCarrierHz
+            this.beatHz = targetBeatHz
             carrierStep = 0.0
             beatStep = 0.0
+        } else {
+            carrierStep = (targetCarrierHz - this.carrierHz) / durationFrames
+            beatStep = (targetBeatHz - this.beatHz) / durationFrames
+        }
+    }
+
+    /** Smoothly changes only the noise color and amount. */
+    public fun transitionNoiseTo(noiseColor: NoiseColor, noiseMix: Double, durationFrames: Long) {
+        require(durationFrames >= 0L) { "durationFrames must be non-negative" }
+        val signal = BinauralSignal(targetCarrierHz, targetBeatHz, noiseColor, noiseMix)
+        validateForSampleRate(signal)
+
+        targetNoiseMix = noiseMix
+        noiseMixTransitionFrames = durationFrames
+        if (durationFrames == 0L) {
+            this.noiseMix = targetNoiseMix
             noiseMixStep = 0.0
         } else {
-            carrierStep = (targetCarrierHz - carrierHz) / durationFrames
-            beatStep = (targetBeatHz - beatHz) / durationFrames
-            noiseMixStep = (targetNoiseMix - noiseMix) / durationFrames
+            noiseMixStep = (targetNoiseMix - this.noiseMix) / durationFrames
         }
 
-        if (signal.noiseColor != nextNoiseColor) {
+        if (noiseColor != nextNoiseColor) {
             if (noiseTransitionFrames > 0L) {
-                noiseColor = nextNoiseColor
+                this.noiseColor = nextNoiseColor
                 noiseGenerator = nextNoiseGenerator
             }
-            nextNoiseColor = signal.noiseColor
-            nextNoiseGenerator = createNoise(signal.noiseColor)
+            nextNoiseColor = noiseColor
+            nextNoiseGenerator = createNoise(noiseColor)
             noiseTransitionFrames = durationFrames
             noiseTransitionTotalFrames = durationFrames
             if (durationFrames == 0L) {
-                noiseColor = nextNoiseColor
+                this.noiseColor = nextNoiseColor
                 noiseGenerator = nextNoiseGenerator
             }
         }
@@ -136,14 +159,20 @@ public class BinauralGenerator(
 
         var outputIndex = offsetFrames * 2
         repeat(frameCount) {
-            if (signalTransitionFrames > 0L) {
+            if (frequencyTransitionFrames > 0L) {
                 carrierHz += carrierStep
                 beatHz += beatStep
-                noiseMix += noiseMixStep
-                signalTransitionFrames--
-                if (signalTransitionFrames == 0L) {
+                frequencyTransitionFrames--
+                if (frequencyTransitionFrames == 0L) {
                     carrierHz = targetCarrierHz
                     beatHz = targetBeatHz
+                }
+            }
+
+            if (noiseMixTransitionFrames > 0L) {
+                noiseMix += noiseMixStep
+                noiseMixTransitionFrames--
+                if (noiseMixTransitionFrames == 0L) {
                     noiseMix = targetNoiseMix
                 }
             }
@@ -209,7 +238,8 @@ public class BinauralGenerator(
         carrierStep = 0.0
         beatStep = 0.0
         noiseMixStep = 0.0
-        signalTransitionFrames = 0L
+        frequencyTransitionFrames = 0L
+        noiseMixTransitionFrames = 0L
         leftPhase = 0.0
         rightPhase = 0.0
         gain = initialGain

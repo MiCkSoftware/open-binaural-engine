@@ -92,6 +92,32 @@ class BinauralGeneratorTest {
     }
 
     @Test
+    fun frequencyTrajectoryAdvancesOnlyOnRenderedFrames() {
+        val generator = BinauralGenerator(1_000, BinauralSignal(400.0, 8.0), 1L)
+        generator.transitionFrequenciesTo(300.0, 8.0, 100)
+
+        generator.renderInterleaved(FloatArray(100), frameCount = 50)
+
+        assertEquals(350.0, generator.currentSignal.carrierHz, 0.000001)
+        assertEquals(8.0, generator.currentSignal.beatHz, 0.0)
+        assertEquals(300.0, generator.targetSignal.carrierHz, 0.0)
+    }
+
+    @Test
+    fun noiseUpdateDoesNotRestartFrequencyTrajectory() {
+        val generator = BinauralGenerator(1_000, BinauralSignal(400.0, 8.0), 1L)
+        generator.transitionFrequenciesTo(300.0, 8.0, 100)
+        generator.renderInterleaved(FloatArray(80), frameCount = 40)
+
+        generator.transitionNoiseTo(NoiseColor.PINK, 0.4, 10)
+        generator.renderInterleaved(FloatArray(120), frameCount = 60)
+
+        assertEquals(300.0, generator.currentSignal.carrierHz, 0.000001)
+        assertEquals(NoiseColor.PINK, generator.targetSignal.noiseColor)
+        assertEquals(0.4, generator.targetSignal.noiseMix, 0.0)
+    }
+
+    @Test
     fun coloredNoiseHasExpectedRelativeSpectralSlope() {
         val white = octavePower(NoiseColor.WHITE)
         val pink = octavePower(NoiseColor.PINK)
@@ -170,4 +196,3 @@ class BinauralGeneratorTest {
         }
     }
 }
-
